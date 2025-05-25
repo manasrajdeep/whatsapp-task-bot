@@ -1,12 +1,10 @@
-from flask import Flask, request
-from twilio.twiml.messaging_response import MessagingResponse
 import openai
 import os
+from flask import Flask, request
+from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
-key = os.getenv("OPENAI_API_KEY")
-print("Loaded OpenAI Key:", key)
-openai.api_key = key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 @app.route("/whatsapp", methods=["POST"])
@@ -19,13 +17,13 @@ def whatsapp_reply():
         goal = incoming_msg.split(":", 1)[1].strip()
         prompt = f"Break down the following goal into daily learning tasks:\n\n{goal}"
         try:
-            reply = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}]
             )
-            response_text = reply["choices"][0]["message"]["content"]
-            msg.body(f"📋 Here's your task breakdown:\n\n{response_text}")
-        except Exception:
-            msg.body("❌ GPT error: Check API key or rate limits.")
+            result = response.choices[0].message.content.strip()
+            msg.body(f"📋 Here's your task breakdown:\n\n{result}")
+        except Exception as e:
+            msg.body(f"❌ GPT error: {str(e)}")
     else:
         msg.body("👋 Hi! Send your goal like this:\n\n*Goal: Learn Java*")
 
@@ -34,8 +32,4 @@ def whatsapp_reply():
 
 @app.route("/", methods=["GET"])
 def home():
-    return "🟢 WhatsApp Bot is live."
-
-
-if __name__ == "__main__":
-    app.run()
+    return "Bot is live!"
