@@ -4,7 +4,9 @@ import openai
 import os
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+key = os.getenv("OPENAI_API_KEY")
+print("Loaded OpenAI Key:", key)
+openai.api_key = key
 
 
 @app.route("/whatsapp", methods=["POST"])
