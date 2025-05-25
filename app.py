@@ -1,10 +1,10 @@
-import openai
-import os
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
+from openai import OpenAI
+import os
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 @app.route("/whatsapp", methods=["POST"])
@@ -17,7 +17,7 @@ def whatsapp_reply():
         goal = incoming_msg.split(":", 1)[1].strip()
         prompt = f"Break down the following goal into daily learning tasks:\n\n{goal}"
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}]
             )
             result = response.choices[0].message.content.strip()
@@ -32,4 +32,4 @@ def whatsapp_reply():
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Bot is live!"
+    return "Bot is live with new OpenAI SDK 🚀"
